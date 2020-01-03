@@ -16,12 +16,3 @@ class fromCSVWriter:
         return final_data
 
     #def prepareSQL(self, data):
-
-
-
-
-
-
-
-
-
