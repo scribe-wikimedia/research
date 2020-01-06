@@ -24,7 +24,8 @@ def get_full_references(lang_code, filepath):
     with open(filepath) as infile:
         next(infile)
         for line in infile:
-            link = line.split('\t')[1].strip()
+            #link = line.split('\t')[1].strip()
+            link = line.split('\t')[2].strip()
             print(link)
             title = link.replace('https://' + lang_code + '.wikipedia.org/wiki/', '')
             pages = get_pages(lang_code, title)
@@ -39,9 +40,10 @@ def get_full_references(lang_code, filepath):
                         reference_data[link] = [a.get('href')]
     return reference_data
 
-full_reference_data = get_full_references('ar', '../research/wikidata-glam/arabic/museum.tsv')
-#print(full_reference_data)
-json.dump(full_reference_data, open('museums-ar-full-references.json', 'w'))
+#full_reference_data = get_full_references('ar', '../wikidata-glam/arabic/museum.tsv')
+full_reference_data = get_full_references('ar', '../wikidata-female-scientists/arabic/articles.tsv')#
+
+json.dump(full_reference_data, open('female-scientists-ar-full-references.json', 'w'))
 
 counted_data = {}
 for page, references in full_reference_data.items():
@@ -57,7 +59,7 @@ for k in sorted(counted_data, key=counted_data.get, reverse=True):
     counted_data_sorted[k] = counted_data[k]
 
 print(counted_data_sorted)
-json.dump(counted_data_sorted, open('museums-ar-references-counted.json', 'w'))
+json.dump(counted_data_sorted, open('female-scientists-ar-references-counted.json', 'w'))
 
 
 
