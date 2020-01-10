@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 from databasewriter.webScraper import *
 from datetime import date
+import json
 
 class fromCSVWriter:
 
@@ -20,20 +21,27 @@ class fromCSVWriter:
 
     def get_reference_data(self, data):
         ws = Scraper()
-        for qid, data in data.items():
-            for i in range(0, len(data['references'])):
-                url = data['references'][i]['refurl']
+        for qid, d in data.items():
+            for i in range(0, len(d['references'])):
+                url = d['references'][i]['refurl']
                 refdata = ws.run(url)
-                data['references'][i].update(refdata)
-        print(data)
+                d['references'][i].update(refdata)
+        #json.dump(data, open('reference_data.json', 'w'))
         return data
 
     def get_insert_articles(self, data, language_code, articleTag, retrieved_date):
-        query = 'INSERT INTO article(name, wd_q_id, lang_code, domain, tag, retrieved_date) VALUES '
-        names = ''
-        wd_q_ids = ''
-        for qid, v in data:
+        query_pre = 'INSERT INTO article(name, wd_q_id, lang_code, domain, tag, retrieved_date) VALUES '
+        insert_string = ''
+        for qid, v in data.items():
+            insert_data = [v['name'], qid, language_code, v['domain'], articleTag, retrieved_date.strftime('%Y-%m-%d %H:%M:%S')]
+            insert_string += query_pre + '(' + (', '.join('"' + item + '"' for item in insert_data)) + ');\n'
 
+        with open('insertArticles.sql', 'w') as outfile:
+            print(insert_string)
+            outfile.write(insert_string)
+
+    def get_insert_references(self):
+        query_pre = 'INSERT INTO article(article_id, section_id, publisher_name, publication_title, summary, url, quality, publication_date, retrieved_date, content_selection_method) VALUES '
 
 
     def run(self, filepath, language_code, articleTag, retrieved_date=date.today()):

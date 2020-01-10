@@ -26,7 +26,7 @@ class Scraper():
             published_time = soup.find("meta", property="article:published_time")
             if published_time:
                 published_time = published_time['content']
-            return {'publisher_name': sitename, 'publication_title': title, 'publication_date': published_time, 'retrieved_date': date.today()}
+            return {'publisher_name': sitename, 'publication_title': title, 'publication_date': published_time, 'retrieved_date': date.today().strftime('%Y-%m-%d %H:%M:%S')}
         else:
             return {'publisher_name': None, 'publication_title': None, 'publication_date': None, 'retrieved_date': date.today()}
 

@@ -41,9 +41,9 @@ def get_full_references(lang_code, filepath):
     return reference_data
 
 #full_reference_data = get_full_references('ar', '../wikidata-glam/arabic/museum.tsv')
-full_reference_data = get_full_references('ca', '../wikidata-female-scientists/catalan/articles.tsv')#
+full_reference_data = get_full_references('de', '../wikidata-female-scientists/german/articles.tsv')#
 
-json.dump(full_reference_data, open('female-scientists-ca-full-references.json', 'w'))
+json.dump(full_reference_data, open('female-scientists-de-full-references.json', 'w'))
 
 counted_data = {}
 for page, references in full_reference_data.items():
@@ -59,7 +59,7 @@ for k in sorted(counted_data, key=counted_data.get, reverse=True):
     counted_data_sorted[k] = counted_data[k]
 
 print(counted_data_sorted)
-json.dump(counted_data_sorted, open('female-scientists-ca-references-counted.json', 'w'))
+json.dump(counted_data_sorted, open('female-scientists-de-references-counted.json', 'w'))
 
 
 
