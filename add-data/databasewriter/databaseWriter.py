@@ -59,8 +59,6 @@ class fromCSVWriter:
 
     def get_section_templates(self, filepath_sections, domain):
         sections = []
-        if domain == 'Museum':
-            domain = 'museums'
         with open(filepath_sections + domain.lower() + '-sections.tsv') as infile:
             next(infile)
             for line in infile:
@@ -86,7 +84,7 @@ class fromCSVWriter:
         retrieved_date = retrieved_date.strftime('%Y-%m-%d %H:%M:%S')
         data = self.get_csv(filepath_articles)
         data = self.get_reference_data(data)
-        self.get_insert_articles(data, language_code, articleTag, retrieved_date)
-        self.get_insert_references(data, language_code, articleTag)
+        #self.get_insert_articles(data, language_code, articleTag, retrieved_date)
+        #self.get_insert_references(data, language_code, articleTag)
         self.insert_sections(filepath_sections, data, language_code, articleTag, retrieved_date)
 
