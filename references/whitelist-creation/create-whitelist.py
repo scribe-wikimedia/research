@@ -1,3 +1,7 @@
+"""
+This is a code to create white list from wikipedia api 
+"""
+
 import argparse
 import logging
 import urllib.request
