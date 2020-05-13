@@ -11,7 +11,9 @@ Similar tools:
 
 
 ## Example usage
-    curl "https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2" | bzcat | python extract_citations.py
+    mkdir -p references-dumps
+    curl "https://dumps.wikimedia.org/arwiki/latest/arwiki-latest-pages-articles.xml.bz2" | bzcat | python create-whitelist-from-dump.py > references-dumps/ar.references.ljson
+    curl "https://dumps.wikimedia.org/cawiki/latest/cawiki-latest-pages-articles.xml.bz2" | bzcat | python create-whitelist-from-dump.py > references-dumps/ca.references.ljson
 
 ## Output format
 One JSON object per line, structured like this:
