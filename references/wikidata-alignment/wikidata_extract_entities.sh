@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 
-#python3 get-domains.py ../wikidata-glam/catalan/bing-all-ca-references.json ca-domains-tmp.csv
-#python3 get-domains.py ../wikidata-glam/arabic/bing-all-ar-references.json ar-domains-tmp.csv
+#echo "Download Wikidata dump"
+#cd ..
+#wget https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.gz
+#cd
 
-cadomains=$(<ca-domains-tmp.csv)
-ardomains==$(<ar-domains-tmp.csv)
+#echo "Extract domains"
+python3 get-domains.py ../wikidata-glam/catalan/bing-all-ca-references.json ca-domains-tmp.csv
+python3 get-domains.py ../wikidata-glam/arabic/bing-all-ar-references.json ar-domains-tmp.csv
 
-curl https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.gz | zcat | grep -f ca-domains-tmp.csv > wikidata-ca-entities.txt
+echo "Make one references file"
+sort ca-domains-tmp.csv ar-domains-tmp.csv | uniq > ar-ca-domains.csv
 
-curl https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.gz | zcat | grep -f ar-domains-tmp.csv > wikidata-ar-entities.txt
+#cadomains=$(<ca-domains-tmp.csv)
+#ardomains==$(<ar-domains-tmp.csv)
 
-rm ca-domains-tmp.csv
-rm ar-domains-tmp.csv
-
-
+echo "Grep for domains"
+zcat ../latest-truthy.nt.gz | grep -f ar-ca-domains.csv > wikidata-ca-entities.txt
