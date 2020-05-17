@@ -3,9 +3,9 @@
 #echo "Download Wikidata dump"
 #cd ..
 #wget https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.gz
-#cd
+#cd wikidata-alignment
 
-#echo "Extract domains"
+echo "Extract domains"
 python3 get-domains.py ../wikidata-glam/catalan/bing-all-ca-references.json ca-domains-tmp.csv
 python3 get-domains.py ../wikidata-glam/arabic/bing-all-ar-references.json ar-domains-tmp.csv
 
