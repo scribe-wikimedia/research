@@ -23,8 +23,8 @@ def get_domains(input):
 
 def write_domains(output, domains):
     with open(output, 'w') as outfile:
-        d = '|'.join(domains)
-        outfile.write(d + '\n')
+        for d in domains:
+            outfile.write(d + '\n')
 
 
 def main(input, output):
