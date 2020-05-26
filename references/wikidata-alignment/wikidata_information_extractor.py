@@ -16,8 +16,8 @@ def get_base_url(url):
 ar = json.load(open("../wikidata-glam/arabic/bing-all-ar-references.json"))   
 ca = json.load(open("../wikidata-glam/catalan/bing-all-ca-references.json"))
 #Get base url (domain name ) from each url in the bing retreived list
-ar = set([get_base_url(i["url"]) for i in ar]) 
-ca = set([get_base_url(i["url"]) for i in ca]) 
+ar = set([a for a  in [get_base_url(i["url"]) for i in ar] if a is not None]) 
+ca = set([a for a  in [get_base_url(i["url"]) for i in ca] if a is not None]) 
 
 
 if __name__ == '__main__':
@@ -26,7 +26,6 @@ if __name__ == '__main__':
         a,b = source.strip().split()
         b = get_base_url(b) 
         if b in ar:
-            print("{}\t{}".format(a,b))
-        elif b in ca:
-            print("{}\t{}".format(a,b))
-
+            print("{}\t{}\tar".format(a,b))
+        if b in ca:
+            print("{}\t{}\tca".format(a,b))
