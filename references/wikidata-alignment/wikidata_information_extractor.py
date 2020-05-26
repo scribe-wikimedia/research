@@ -1,26 +1,32 @@
-import gzip
+# Run using this command
+# curl https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.bz2 | bzcat | grep "P856" | cut -d" " -f1,3 | sed -e "s/[\<\>]//g" | python wikidata_information_extractor.py > ar_ca_matched_domains.csv
 
-ca_urls = set()
-ar_urls = set()
 
-with open('ca-domains-tmp.csv') as infile:
-    for line in infile:
-        ca_urls.add(line.strip)
+import json 
+from tld import get_tld
+import sys 
 
-with open('ar-domains-tmp.csv') as infile:
-    for line in infile:
-        ar_urls.add(line.strip())
+def get_base_url(url):
+    try:
+        return get_tld(url, as_object=True).fld
+    except:
+        print("cannot get base url for {}".format(url), file=sys.stderr)
+        return None
 
-with open('wikidata-ca-domains.csv', 'w') as caout, open('wikidata-ar-domains.csv', 'w') as arout:
-    with gzip.open('../latest-truthy.nt.gz') as infile:
-        for line in infile:
-            domain = line.strip().split()[2].decode('UTF-8')
-            domain = domain.replace('<', '').replace('>', '').replace('http://', '')
-            domain = domain.replace('https://', '').replace('www.', '')
-            if domain in ca_urls:
-                print('ca ' + line.strip().decode('UTF-8'))
-                caout.write(line.strip().decode('UTF-8') + '\n')
-            if domain in ar_urls:
-                print('ar ' + line.strip().decode('UTF-8'))
-                arout.write(line.strip().decode('UTF-8') + '\n')
+ar = json.load(open("../wikidata-glam/arabic/bing-all-ar-references.json"))   
+ca = json.load(open("../wikidata-glam/catalan/bing-all-ca-references.json"))
+#Get base url (domain name ) from each url in the bing retreived list
+ar = set([get_base_url(i["url"]) for i in ar]) 
+ca = set([get_base_url(i["url"]) for i in ca]) 
+
+
+if __name__ == '__main__':
+
+    for source in sys.stdin:
+        a,b = source.strip().split()
+        b = get_base_url(b) 
+        if b in ar:
+            print("{}\t{}".format(a,b))
+        elif b in ca:
+            print("{}\t{}".format(a,b))
 
