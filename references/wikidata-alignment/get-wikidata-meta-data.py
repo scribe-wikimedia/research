@@ -3,6 +3,8 @@ import jsonlines
 import argparse
 import requests
 
+# usage:
+# python3 get-Wikidata-meta-data.py ar_ca_matched_domains_uniq.csv wikidata-information.json
 
 def get_args():
     parser = argparse.ArgumentParser()
