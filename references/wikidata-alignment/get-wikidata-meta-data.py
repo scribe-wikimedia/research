@@ -82,7 +82,7 @@ def get_meta_data(input):
 
 def write_domains(output, domains):
     with jsonlines.open(output, mode='w') as outfile:
-        outfile.write(domains)
+        outfile.write_all(domains)
 
 
 def main(input, output):
