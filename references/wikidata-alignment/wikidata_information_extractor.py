@@ -1,14 +1,14 @@
 # Run using this command
 # curl https://dumps.wikimedia.org/wikidatawiki/entities/latest-truthy.nt.bz2 | bzcat | grep "P856" | cut -d" " -f1,3 | sed -e "s/[\<\>]//g" | python wikidata_information_extractor.py > ar_ca_matched_domains.csv
 
-
 import json 
-from tld import get_tld
 import sys 
+from urllib.parse import urlsplit
 
 def get_base_url(url):
     try:
-        return get_tld(url, as_object=True).fld
+        netloc = urlsplit(url).netloc
+        return netloc if len(netloc) > 0 else None 
     except:
         print("cannot get base url for {}".format(url), file=sys.stderr)
         return None
