@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 # python3 calculate-credibility-score.py
 #   [--bing ../wikidata-glam/arabic/bing-all-ar-references.json]
 #   [--wikidata ../wikidata-alignment/wikidata-information.jsonlines]
-#   [--wikipedia ]
+#   [--wikipedia ../wikipedia-references-files/ca.references.aggregated.json or ar.references.aggregated.json]
 #   [--wikipedia-domain ../museums-ar-full-references.json]
 #   [--enwikipedia-blacklist ../blacklist/Wikipedia-reliable-sources.tsv]
 #   [--alexa ]
@@ -52,11 +52,11 @@ def get_wikidata(wikidatafile):
 
 
 def get_wikipedia(wikipediafile):
-    return None
+    return json.load(open(wikipediafile))
 
 
 def get_wikipedia_domains(wikipediadomainfile):
-    domains = json.load(open(wikipediadomainfile))
+    return json.load(open(wikipediadomainfile))
 
 
 def get_enblacklist(enblacklistfile):
@@ -67,17 +67,51 @@ def get_enblacklist(enblacklistfile):
             enblacklist[tmp[1]] = tmp[2]
 
 
-def get_scores(bing, wikidatafile, wikipediafile, wikipediadomainfile, enblacklistfile, alexafile):
-    domains_scores = []
+def get_score(reference_url, wikidata, wikipedia, wikipediadomain, enblacklist):
+    scores = {}
+    if reference_url in wikidata:
+        scores['wikidata'] = wikidata[reference_url]
+    else:
+        scores['wikipedia'] = None
+    if reference_url in wikipedia:
+        scores['wikipedia'] = wikipedia[reference_url]
+    else:
+        scores['wikipedia'] = None
+    if reference_url in wikipediadomain:
+        scores['wikipediadomain'] = wikipediadomain[reference_url]
+    else:
+        scores['wikipediadomain'] = None
+    if reference_url in enblacklist:
+        scores['enblacklist'] = enblacklist[reference_url]
+    else:
+        scores['enblacklist'] = None
+    return scores
+
+
+def get_scores(bing, wikidata, wikipedia, wikipediadomain, enblacklist):
+    domains_scores = {}
     for result in bing:
-        domains_scores.append(None)
+        reference_url = get_base_url(result['url'])
+        domains_scores[reference_url] = get_score(reference_url, wikidata, wikipedia, wikipediadomain, enblacklist)
+    return domains_scores
+
+
+def write_scores(scores):
+    with open('counted-by-domain.tsv') as outfile:
+        for domain, score in scores.items():
+            outfile.write(domain + '\t' + score)
+
 
 
 def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, enblacklistfile, alexafile, output):
     bing = get_bing_domains(bingfile)
     wikidata = get_wikidata(wikidatafile)
+    wikipedia = get_wikipedia(wikipediafile)
+    wikipediadomain = get_wikipedia_domains(wikipediadomainfile)
+    enblacklist = get_enblacklist(enblacklistfile)
 
-    get_scores(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, enblacklistfile, alexafile)
+    scores = get_scores(bing, wikidata, wikipedia, wikipediadomain, enblacklist)
+    write_scores(scores)
 
 
 if __name__ == '__main__':
