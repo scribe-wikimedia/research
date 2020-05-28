@@ -43,12 +43,7 @@ def get_bing_domains(bingfile):
 
 
 def get_wikidata(wikidatafile):
-    wikidata = {}
-    with jsonlines.open(wikidatafile) as infile:
-        for obj in infile:
-            for k, v in obj.items():
-                wikidata[k] = v
-    return wikidata
+    wikidata = json.load(open(wikidatafile, 'w'))
 
 
 def get_wikipedia(wikipediafile):

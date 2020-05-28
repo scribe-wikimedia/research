@@ -4,7 +4,7 @@ import argparse
 import requests
 
 # usage:
-# python3 get-Wikidata-meta-data.py ar_ca_matched_domains_uniq.csv wikidata-information.json
+# python3 get-wikidata-meta-data.py ar_ca_matched_domains_uniq.csv wikidata-information.json
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -59,7 +59,10 @@ def get_data_from_statements(entity_data):
 
 def make_request(qid):
     url = 'https://www.wikidata.org/wiki/Special:EntityData/' + qid + '.json'
-    text = json.loads(requests.get(url).text)
+    text = requests.get(url).text
+    if not text:
+        return None
+    text = json.loads(text)
     entity_data = text['entities'][qid]
     title = ''
     if 'en' in entity_data['labels']:
@@ -73,7 +76,10 @@ def get_meta_data(input):
     input_data = get_input_file_data(input)
     for url, qid_lists in input_data.items():
         for meta in qid_lists:
-            title, types, twitter, political_alignment = make_request(meta['qid'])
+            wikidata_result = make_request(meta['qid'])
+            if not wikidata_result:
+                continue
+            title, types, twitter, political_alignment = wikidata_result
             if not url in domains:
                 domains[url] = []
             domains[url].append({'qid': meta['qid'], 'ref_lang': meta['language'], 'en_title': title, 'types': types,
