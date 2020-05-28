@@ -144,7 +144,10 @@ def write_scores(scores):
 
 def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, blacklistfile, alexafile, output):
     bing = get_bing_domains(bingfile)
-    wikidata = get_wikidata(wikidatafile)
+    if wikidatafile:
+        wikidata = get_wikidata(wikidatafile)
+    else:
+        wikidata = {}
     wikipedia = get_wikipedia(wikipediafile)
     wikipediadomain = get_wikipedia_domains(wikipediadomainfile)
     blacklist = get_blacklist(blacklistfile)
