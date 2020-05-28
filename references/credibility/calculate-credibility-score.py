@@ -87,6 +87,7 @@ def get_blacklist(blacklistfile):
             domain = get_base_url(tmp[1])
             lang_code = tmp[4].lower()
             blacklist[domain] = [tmp[2], lang_code]
+    return blacklist
 
 
 def get_score(reference_url, wikidata, wikipedia, wikipediadomain, blacklist):
@@ -136,9 +137,9 @@ def get_scores(bing, wikidata, wikipedia, wikipediadomain, blacklist):
 
 
 def write_scores(scores):
-    with open('counted-by-domain.tsv') as outfile:
+    with jsonlines.open('counted-by-domain.tsv', 'w') as outfile:
         for domain, score in scores.items():
-            outfile.write(domain + '\t' + score)
+            outfile.write({'domain': domain, 'scores': score})
 
 
 
