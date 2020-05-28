@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 
 # usage:
 # python3 calculate-credibility-score.py
+#   output-file-name.jsonlines
 #   [--bing ../wikidata-glam/arabic/bing-all-ca-references.json or bing-all-ar-references.json]
 #   [--wikidata ../wikidata-alignment/wikidata-information.json]
 #   [--wikipedia ../wikipedia-references-files/ca.references.aggregated.json or ar.references.aggregated.json]
@@ -15,7 +16,7 @@ from urllib.parse import urlsplit
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('output', help='json output file')
+    parser.add_argument('output', help='jsonlines output file')
     parser.add_argument('--bing', metavar='bingfile', help='Bing results file (json)')
     parser.add_argument('--wikidata', metavar='wikidatafile', help='Wikidata meta information file (json)')
     parser.add_argument('--wikipedia', metavar='wikipediafile', help='Wikipedia whitelist over all articles (jsonlines)')
