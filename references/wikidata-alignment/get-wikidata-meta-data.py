@@ -6,6 +6,7 @@ import requests
 # usage:
 # python3 get-wikidata-meta-data.py ar_ca_matched_domains_uniq.csv wikidata-information.json
 
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('input', help='search results file')
@@ -16,6 +17,11 @@ def get_args():
 
 
 def get_input_file_data(input):
+    """ Get data from the input file
+    The input file should be a tsv file
+    :param input: input file name
+    :return: dict in the form {<url>: [{qid: <qid>, language: <language>}], ...}
+    """
     wikidata_ids = {}
     with open(input) as infile:
         for line in infile:
@@ -31,6 +37,11 @@ def get_input_file_data(input):
 
 
 def get_data_from_statements(entity_data):
+    """ Get the statements we want to look at from a json Wikidata entity
+    :param entity_data: data about an entity
+    :return: type (P31), twitter username (P2002) including number of subscribers (P3744), and
+             political alignment (P1387 or P1142) in a list in this order (each can be multiple values)
+    """
     # get types
     types = []
     if 'P31' in entity_data['claims']:
@@ -58,6 +69,11 @@ def get_data_from_statements(entity_data):
 
 
 def make_request(qid):
+    """ Given a Wikidata id, make a request to the Special:EntityData interface on Wikidata
+    :param qid: Q-id for a Wikidata item
+    :return: for the qid, get the title in English, type,
+             twitter username (including number of followers) and political alignment
+    """
     url = 'https://www.wikidata.org/wiki/Special:EntityData/' + qid + '.json'
     text = requests.get(url).text
     if not text:
@@ -72,6 +88,12 @@ def make_request(qid):
 
 
 def get_meta_data(input):
+    """ Get the meta data for each entity associated to a domain in the input file
+    :param input: name of the input file
+    :return: domains (urls) in the form {<domain>: [qid: <qid>, ref_lang: <language where the reference is used
+             (ca or ar)>, en_title: <title in English>, types: [<types as qids>], twitter: {<username>: <number subscribers>},
+             political_alignment: [<political alignment as qids>]]}
+    """
     domains = {}
     input_data = get_input_file_data(input)
     for url, qid_lists in input_data.items():
@@ -80,7 +102,7 @@ def get_meta_data(input):
             if not wikidata_result:
                 continue
             title, types, twitter, political_alignment = wikidata_result
-            if not url in domains:
+            if url not in domains:
                 domains[url] = []
             domains[url].append({'qid': meta['qid'], 'ref_lang': meta['language'], 'en_title': title, 'types': types,
                                  'twitter': twitter, 'political_alignment': political_alignment})
@@ -89,7 +111,12 @@ def get_meta_data(input):
 
 
 def write_domains(output, domains):
+    """ Write domains dict to json file
+    :param output: output file to write to (json)
+    :param domains: domains dict to write
+    """
     json.dump(domains, open(output, 'w'))
+
 
 def main(input, output):
     domains = get_meta_data(input)

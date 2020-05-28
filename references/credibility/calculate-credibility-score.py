@@ -21,7 +21,7 @@ def get_args():
     parser.add_argument('--wikidata', metavar='wikidatafile', help='Wikidata meta information file (json)')
     parser.add_argument('--wikipedia', metavar='wikipediafile', help='Wikipedia whitelist over all articles (jsonlines)')
     parser.add_argument('--wikipedia-domain', metavar='wikipediadomainfile', help='Wikipedia whitelist over one domain (json)')
-    parser.add_argument('--enwikipedia-blacklist', metavar='enblacklistfile', help='Blacklist of domains from English Wikipedia (tsv)')
+    parser.add_argument('--enwikipedia-blacklist', metavar='blacklistfile', help='Blacklist of domains from English Wikipedia (tsv)')
     parser.add_argument('--alexa', metavar='alexa', help='Alexa ranking')
 
     args = parser.parse_args()
@@ -29,6 +29,10 @@ def get_args():
 
 
 def get_base_url(url):
+    """ Given a url, get a base URL
+    :param url: URL to shorten
+    :return: base URL of the given URL
+    """
     try:
         netloc = urlsplit(url).netloc
         if netloc.startswith("www."):
@@ -40,30 +44,60 @@ def get_base_url(url):
 
 
 def get_bing_domains(bingfile):
+    """ Get data from the bing search results
+    :param bingfile: json bing search results file
+    :return: dict with search results
+    """
     return json.load(open(bingfile))
 
 
 def get_wikidata(wikidatafile):
+    """ Get Wikidata meta
+    :param wikidatafile: file with the meta data from Wikidata by domain
+    :return: dict with wikidata meta data
+    """
     wikidata = json.load(open(wikidatafile, 'w'))
 
 
 def get_wikipedia(wikipediafile):
+    """ Get data of how many a url is cited in a wikipedia overall
+    :param wikipediafile: aggregated file counted by domain, sorted by base url
+    :return: dict with wikipedia reference data
+    """
     return json.load(open(wikipediafile))
 
 
 def get_wikipedia_domains(wikipediadomainfile):
+    """ Get data of how often a url is cited in a wikipedia by domain
+    :param wikipediadomainfile: aggregated file counted by domain, sorted by base url
+    :return: dict with wikipedia domain-specific reference data
+    """
     return json.load(open(wikipediadomainfile))
 
 
-def get_enblacklist(enblacklistfile):
-    enblacklist = {}
-    with open(enblacklistfile) as infile:
+def get_blacklist(blacklistfile):
+    """ Get data about which urls are domain on the reliable sources list of English and Arabic Wikipedia
+    :param blacklistfile: tsv file containing the table from English and Arabic Wikipedia
+    :return: dict in the form {<base url>: [<score>, <language code>]}
+    """
+    blacklist = {}
+    with open(blacklistfile) as infile:
         for line in infile:
             tmp = line.strip().split('\t')
-            enblacklist[tmp[1]] = tmp[2]
+            domain = get_base_url(tmp[1])
+            lang_code = tmp[4].lower()
+            blacklist[domain] = [tmp[2], lang_code]
 
 
-def get_score(reference_url, wikidata, wikipedia, wikipediadomain, enblacklist):
+def get_score(reference_url, wikidata, wikipedia, wikipediadomain, blacklist):
+    """ Check if a given reference domain exists in each scores file and if so, add scores
+    :param reference_url: reference url/domain from bing search
+    :param wikidata: dict with wikidata meta data
+    :param wikipedia: dict with wikipedia usage of a url
+    :param wikipediadomain: dict with domain-specific usage of a url
+    :param blacklist: blacklist score from Arabic and English Wikipedia
+    :return: dict with either the scores or None if no score can be obtained for each metric
+    """
     scores = {}
     if reference_url in wikidata:
         scores['wikidata'] = wikidata[reference_url]
@@ -77,18 +111,27 @@ def get_score(reference_url, wikidata, wikipedia, wikipediadomain, enblacklist):
         scores['wikipediadomain'] = wikipediadomain[reference_url]
     else:
         scores['wikipediadomain'] = None
-    if reference_url in enblacklist:
-        scores['enblacklist'] = enblacklist[reference_url]
+    if reference_url in blacklist:
+        scores['blacklist'] = blacklist[reference_url]
     else:
-        scores['enblacklist'] = None
+        scores['blacklist'] = None
     return scores
 
 
-def get_scores(bing, wikidata, wikipedia, wikipediadomain, enblacklist):
+def get_scores(bing, wikidata, wikipedia, wikipediadomain, blacklist):
+    """ Get scores for each of the references in bing search results
+    :param bing: bing search results dict
+    :param wikidata: dict with wikidata meta data
+    :param wikipedia: dict with wikipedia usage of a url
+    :param wikipediadomain: dict with domain-specific usage of a url
+    :param blacklist: blacklist score from Arabic and English Wikipedia
+    :return: domains and all scores
+    """
     domains_scores = {}
     for result in bing:
         reference_url = get_base_url(result['url'])
-        domains_scores[reference_url] = get_score(reference_url, wikidata, wikipedia, wikipediadomain, enblacklist)
+        domains_scores[reference_url] = get_score(reference_url, wikidata, wikipedia, wikipediadomain, blacklist)
+        domains_scores[reference_url]['search_result_score'] = result['quality']
     return domains_scores
 
 
@@ -99,18 +142,18 @@ def write_scores(scores):
 
 
 
-def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, enblacklistfile, alexafile, output):
+def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, blacklistfile, alexafile, output):
     bing = get_bing_domains(bingfile)
     wikidata = get_wikidata(wikidatafile)
     wikipedia = get_wikipedia(wikipediafile)
     wikipediadomain = get_wikipedia_domains(wikipediadomainfile)
-    enblacklist = get_enblacklist(enblacklistfile)
+    blacklist = get_blacklist(blacklistfile)
 
-    scores = get_scores(bing, wikidata, wikipedia, wikipediadomain, enblacklist)
+    scores = get_scores(bing, wikidata, wikipedia, wikipediadomain, blacklist)
     write_scores(scores)
 
 
 if __name__ == '__main__':
     args = get_args()
     main(args.bingfile, args.wikidatafile, args.wikipediafile,
-         args.wikipediadomainfile, args.enblacklistfile, args.alexafile, args.output)
+         args.wikipediadomainfile, args.blacklistfile, args.alexafile, args.output)
