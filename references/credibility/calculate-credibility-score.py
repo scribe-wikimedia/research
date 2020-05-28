@@ -17,12 +17,12 @@ from urllib.parse import urlsplit
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('output', help='jsonlines output file')
-    parser.add_argument('--bing', metavar='bingfile', help='Bing results file (json)')
-    parser.add_argument('--wikidata', metavar='wikidatafile', help='Wikidata meta information file (json)')
-    parser.add_argument('--wikipedia', metavar='wikipediafile', help='Wikipedia whitelist over all articles (jsonlines)')
-    parser.add_argument('--wikipedia-domain', metavar='wikipediadomainfile', help='Wikipedia whitelist over one domain (json)')
-    parser.add_argument('--enwikipedia-blacklist', metavar='blacklistfile', help='Blacklist of domains from English Wikipedia (tsv)')
-    parser.add_argument('--alexa', metavar='alexa', help='Alexa ranking')
+    parser.add_argument('--bing', help='Bing results file (json)')
+    parser.add_argument('--wikidata', help='Wikidata meta information file (json)')
+    parser.add_argument('--wikipedia', help='Wikipedia whitelist over all articles (jsonlines)')
+    parser.add_argument('--wikipediadomain', help='Wikipedia whitelist over one domain (json)')
+    parser.add_argument('--blacklist', help='Blacklist of domains from English Wikipedia (tsv)')
+    parser.add_argument('--alexa', help='Alexa ranking')
 
     args = parser.parse_args()
     return args
@@ -155,5 +155,5 @@ def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, blacklistfi
 
 if __name__ == '__main__':
     args = get_args()
-    main(args.bingfile, args.wikidatafile, args.wikipediafile,
-         args.wikipediadomainfile, args.blacklistfile, args.alexafile, args.output)
+    main(args.bing, args.wikidata, args.wikipedia,
+         args.wikipediadomain, args.blacklist, args.alexa, args.output)
