@@ -67,9 +67,13 @@ def get_data_from_statements(entity_data):
     political_alignment = []
     if 'P1387' in entity_data['claims']:
         for t in entity_data['claims']['P1387']:
+            if not 'mainsnak' in t or not 'datavalue' in t['mainsnak']:
+                continue
             political_alignment.append(t['mainsnak']['datavalue']['value']['id'])
     if 'P1142' in entity_data['claims']:
         for t in entity_data['claims']['P1142']:
+            if not 'mainsnak' in t or not 'datavalue' in t['mainsnak']:
+                continue
             political_alignment.append(t['mainsnak']['datavalue']['value']['id'])
     return [types, twitter, political_alignment]
 

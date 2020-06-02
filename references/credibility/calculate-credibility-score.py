@@ -56,7 +56,7 @@ def get_wikidata(wikidatafile):
     :param wikidatafile: file with the meta data from Wikidata by domain
     :return: dict with wikidata meta data
     """
-    wikidata = json.load(open(wikidatafile, 'w'))
+    return json.load(open(wikidatafile))
 
 
 def get_wikipedia(wikipediafile):
@@ -103,7 +103,7 @@ def get_score(reference_url, wikidata, wikipedia, wikipediadomain, blacklist):
     if reference_url in wikidata:
         scores['wikidata'] = wikidata[reference_url]
     else:
-        scores['wikipedia'] = None
+        scores['wikidata'] = None
     if reference_url in wikipedia:
         scores['wikipedia'] = wikipedia[reference_url]
     else:
