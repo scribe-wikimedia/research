@@ -46,15 +46,21 @@ def get_data_from_statements(entity_data):
     types = []
     if 'P31' in entity_data['claims']:
         for t in entity_data['claims']['P31']:
+            if not 'mainsnak' in t or not 'datavalue' in t['mainsnak']:
+                continue
             types.append(t['mainsnak']['datavalue']['value']['id'])
 
     # get twitter and twitter followers
     twitter = {}
     if 'P2002' in entity_data['claims']:
         for t in entity_data['claims']['P2002']:
+            if not 'mainsnak' in t or not 'datavalue' in  t['mainsnak']:
+                continue
             username = t['mainsnak']['datavalue']['value']
             twitter[username] = []
             if 'qualifiers' in t and 'P3744' in t['qualifiers']:
+                if not 'mainsnak' in t or not 'datavalue' in t['mainsnak']:
+                    continue
                 twitter[username] = t['qualifiers']['P3744'][0]['datavalue']['value']['amount']
 
     # get political alignemt
@@ -76,9 +82,15 @@ def make_request(qid):
     """
     url = 'https://www.wikidata.org/wiki/Special:EntityData/' + qid + '.json'
     text = requests.get(url).text
+    print(text)
     if not text:
         return None
-    text = json.loads(text)
+    try:
+        text = json.loads(text)
+    except:
+        return None
+    if not text:
+        return None
     entity_data = text['entities'][qid]
     title = ''
     if 'en' in entity_data['labels']:
