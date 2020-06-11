@@ -136,8 +136,8 @@ def get_scores(bing, wikidata, wikipedia, wikipediadomain, blacklist):
     return domains_scores
 
 
-def write_scores(scores):
-    with jsonlines.open('counted-by-domain.tsv', 'w') as outfile:
+def write_scores(scores, output):
+    with jsonlines.open(output, 'w') as outfile:
         for domain, score in scores.items():
             outfile.write({'domain': domain, 'scores': score})
 
@@ -154,7 +154,7 @@ def main(bingfile, wikidatafile, wikipediafile, wikipediadomainfile, blacklistfi
     blacklist = get_blacklist(blacklistfile)
 
     scores = get_scores(bing, wikidata, wikipedia, wikipediadomain, blacklist)
-    write_scores(scores)
+    write_scores(scores, output)
 
 
 if __name__ == '__main__':
